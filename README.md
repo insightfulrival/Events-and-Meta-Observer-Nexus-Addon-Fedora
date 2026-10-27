@@ -1,19 +1,26 @@
-# Events and Meta Observer Nexus Addon Fedora
+# Events and Meta Observer Nexus Addon — Linux
 
-Event reminders and a watchlist for **Guild Wars 2 + Nexus on Fedora Linux through Wine/Proton**, ported from Blish HUD's Events and Metas Observer 1.0.9.
+Event reminders and a watchlist for **Guild Wars 2 + Nexus on Linux through Wine/Proton**, ported from Blish HUD's Events and Metas Observer 1.0.9.
 
 Tracks **88 events** from the original 104 schedule definitions: world bosses, meta events, convergences, group events, adventures, day/night cycles, and server reset. Includes category/search filters, upcoming start times, per-event reminders, waypoint copying, wiki links, and movable notifications. No GW2 API key is needed.
 
 Nexus runs inside the Windows game process, so the addon is a **Windows x64 DLL built on Linux**. Blish HUD and .NET are not required. Nexus must already be installed and working in your GW2 prefix.
 
-## Install on Fedora
+## Linux distribution compatibility
+
+**The same addon DLL is intended to work on any x86_64 Linux distribution where GW2 and Nexus already work through Wine/Proton.** It has no Fedora-specific runtime dependency. Fedora, Ubuntu, Debian, Mint, Arch, openSUSE and gaming distributions use the same DLL; game paths and Wine/Proton configuration may differ.
+
+Tested on Fedora; other distributions have not each been tested individually. The setup script and provided DLL target x86_64 systems; native ARM builds are not provided.
+
+Existing repository URLs and release filenames are kept for compatibility with earlier links. This does not restrict where the DLL can run. `setup-linux.sh` is the general setup command; the previous `setup-fedora.sh` command remains a compatible alias.
+
+## Install on Linux
 
 Close GW2 before installing. The installer copies the DLL, backs up the Nexus configuration and any existing DLL, and sets **automatic loading on the next game launch**. Run project scripts as your regular user.
 
 ### Option 1: ready-made DLL (no compilation)
 
 ```bash
-sudo dnf install git python3 curl coreutils
 git clone https://github.com/insightfulrival/Events-and-Meta-Observer-Nexus-Addon-Fedora.git
 cd Events-and-Meta-Observer-Nexus-Addon-Fedora
 mkdir -p dist
@@ -25,15 +32,35 @@ curl -fL --retry 3 -o dist/SHA256SUMS \
 python3 install.py
 ```
 
-Only the Fedora package installation uses `sudo`. Alternatively, download the complete installation bundle from [Releases](https://github.com/insightfulrival/Events-and-Meta-Observer-Nexus-Addon-Fedora/releases), extract it, and run `python3 install.py` inside its folder.
+If needed, install Python 3, Git, curl and sha256sum using your distribution's package manager (commands below). Only package installation uses `sudo`. Alternatively, download the complete installation bundle from [Releases](https://github.com/insightfulrival/Events-and-Meta-Observer-Nexus-Addon-Fedora/releases), extract it, and run `python3 install.py` inside its folder.
 
 ### Option 2: build and install with one command
 
+#### Install build prerequisites for your distribution
+
+Use the command for your distribution, then run the clone/setup commands below:
+
 ```bash
+# Fedora / Nobara and other DNF-based systems
 sudo dnf install git python3 curl tar xz coreutils binutils
+
+# Ubuntu / Debian / Linux Mint / Pop!_OS
+sudo apt update
+sudo apt install git python3 curl tar xz-utils coreutils binutils
+
+# Arch Linux / EndeavourOS / CachyOS
+sudo pacman -Syu --needed git python curl tar xz coreutils binutils
+
+# openSUSE
+sudo zypper install git python3 curl tar xz coreutils binutils
+```
+
+Run only the command for your distribution. For other package managers, install the equivalent tools: Bash, Git, Python 3, curl, tar, xz, sha256sum, and GNU objdump. Package installation may use `sudo`; project scripts must run as your regular user. On immutable distributions such as SteamOS or Bazzite, prefer the prebuilt DLL; build in a suitable development environment if you need a custom build.
+
+```bash
 git clone https://github.com/insightfulrival/Events-and-Meta-Observer-Nexus-Addon-Fedora.git
 cd Events-and-Meta-Observer-Nexus-Addon-Fedora
-./setup-fedora.sh
+./setup-linux.sh
 ```
 
 The script uses **Zig 0.17.0**. If a matching `zig` or `python-zig` is unavailable, it downloads the official Linux compiler into `.tools/`, verifies its pinned SHA-256 against the value from the [official Zig download index](https://ziglang.org/download/index.json), then builds, tests, and installs the addon. It does not change the system toolchain.
@@ -45,7 +72,7 @@ The default is `~/.local/share/Steam/steamapps/common/Guild Wars 2`. For another
 ```bash
 python3 install.py --game '/path/to/Guild Wars 2'
 # Or build and install:
-./setup-fedora.sh --game '/path/to/Guild Wars 2'
+./setup-linux.sh --game '/path/to/Guild Wars 2'
 ```
 
 Steam Flatpak, default library:
@@ -90,7 +117,7 @@ Close GW2 before updating. For source builds:
 
 ```bash
 git pull --ff-only
-./setup-fedora.sh
+./setup-linux.sh
 ```
 
 For the prebuilt version, repeat the DLL/checksum download commands above, then run `python3 install.py`. Pass `--game` again if needed. The installer preserves your watchlist and other addons. Timestamped backups are kept beside `AddonConfig.json` and any previous addon DLL.
@@ -100,9 +127,9 @@ To disable, turn off the addon in Nexus. To uninstall, close the game and remove
 ## Building and testing separately
 
 ```bash
-./setup-fedora.sh --build-only
+./setup-linux.sh --build-only
 # Use an existing compiler:
-ZIG=/absolute/path/to/zig ./setup-fedora.sh --build-only
+ZIG=/absolute/path/to/zig ./setup-linux.sh --build-only
 # Install that build later:
 python3 install.py
 ```
@@ -143,7 +170,7 @@ The interface is in English and uses Nexus/ImGui styling. Blish HUD's localized 
 
 ## Source and credits
 
-The repository includes addon sources, the original schedule dataset, pinned SDK/ImGui dependencies, tests, Fedora setup, and an installer. Generated DLLs are distributed through Releases. Original .NET DLLs, PDBs, local Wine prefixes, personal configuration, and raw analysis logs are excluded.
+The repository includes addon sources, the original schedule dataset, pinned SDK/ImGui dependencies, tests, Linux setup, and an installer. Generated DLLs are distributed through Releases. Original .NET DLLs, PDBs, local Wine prefixes, personal configuration, and raw analysis logs are excluded.
 
 - [Blish HUD Community Module Pack](https://github.com/blish-hud/Community-Module-Pack), reference commit `825f37743bc588b2a9f986be175adfe5878ab243`; MIT, see `LICENSE`.
 - [Nexus API](https://github.com/RaidcoreGG/Nexus-API), API v6, commit `9b2c53df86c00db6495642bfcff2d0611bd957ef`; see `vendor/Nexus-LICENSE`.

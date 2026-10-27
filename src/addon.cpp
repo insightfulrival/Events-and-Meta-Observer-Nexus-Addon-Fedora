@@ -35,7 +35,7 @@ constexpr const char* shortcut_id = "EVOBS_SHORTCUT";
 constexpr const char* texture_id = "EVOBS_ICON";
 AddonAPI_t* api = nullptr;
 std::atomic<bool> toggle_requested{false};
-bool visible = true;
+bool visible = false;
 bool notifications_enabled = true;
 bool chime_enabled = true;
 bool move_notifications = false;
@@ -212,8 +212,11 @@ void draw_notices(std::int64_t now) {
             if (ImGui::IsItemClicked(0)) { copy_waypoint(e.waypoint); dismiss = true; }
             if (!e.waypoint.empty() && ImGui::IsItemHovered()) ImGui::SetTooltip("Left click: copy waypoint\nRight click: dismiss");
             if (ImGui::SmallButton("Dismiss")) dismiss = true;
+            ImGui::SameLine();
+            bool dismiss_all = ImGui::SmallButton("Dismiss all");
             ImGui::Separator();
             ImGui::PopID();
+            if (dismiss_all) { notices.clear(); break; }
             if (dismiss) notices.erase(notices.begin() + static_cast<std::ptrdiff_t>(i)); else ++i;
         }
     }
@@ -338,6 +341,7 @@ void on_bind(const char*, bool released) {
 }
 void load(AddonAPI_t* provided) {
     api = provided;
+    visible = false;
     try {
         ImGui::SetCurrentContext(static_cast<ImGuiContext*>(api->ImguiContext));
         ImGui::SetAllocatorFunctions(reinterpret_cast<void*(*)(size_t, void*)>(api->ImguiMalloc),
@@ -385,7 +389,7 @@ extern "C" __declspec(dllexport) AddonDefinition_t* GetAddonDef() {
     // Local signature, not registered in the public Nexus library.
     static AddonDefinition_t definition = {
         0x45564F42, NEXUS_API_VERSION, "Events and Metas Observer (Fedora port)",
-        {0, 1, 1, 0}, "Community / local Nexus port",
+        {0, 1, 2, 0}, "Community / local Nexus port",
         "Event reminders, watchlist and waypoints. Original Blish HUD schedule 1.0.9.",
         load, unload, AF_None, UP_None, nullptr
     };

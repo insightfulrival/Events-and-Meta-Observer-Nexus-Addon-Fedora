@@ -65,7 +65,7 @@ Keep any other launch arguments and DLL overrides your setup requires. Never ren
 ## Start and use
 
 1. Start GW2 normally through your existing Wine/Proton setup. The addon is configured to load automatically.
-2. Open its window using the corner icon, **Ctrl+Alt+E**, or its button in Nexus Options. Change the shortcut in Nexus Keybinds (`EVOBS_TOGGLE_WINDOW`).
+2. The window starts hidden; reminders still run in the background. Open its window using the corner icon, **Ctrl+Alt+E**, or its button in Nexus Options. Change the shortcut in Nexus Keybinds (`EVOBS_TOGGLE_WINDOW`).
 3. Choose the events you want to watch. All events are watched initially, matching the original addon; `Watch none` clears the watchlist.
 
 | Control | Action |
@@ -80,7 +80,7 @@ Keep any other launch arguments and DLL overrides your setup requires. Never ren
 | Move notifications | Drag the notification title bar, then save its position |
 | Test notification | Preview a ten-second notification and sound |
 
-Reminders normally appear 5 or 10 minutes before an event; each event's lead time comes from the bundled schedule. Left-click notification text to copy its waypoint and dismiss it; right-click to dismiss. Settings and the watchlist are saved in `addons/events-observer/settings.txt`.
+Reminders normally appear 5 or 10 minutes before an event; each event's lead time comes from the bundled schedule. Left-click notification text to copy its waypoint and dismiss it; right-click to dismiss. `Dismiss` closes one notification; `Dismiss all`, immediately to its right, clears all currently displayed notifications without changing the watchlist or future reminders. Settings and the watchlist are saved in `addons/events-observer/settings.txt`.
 
 These are static scheduled start times, not live server-state detection. The bundled schedule is based on the original 1.0.9 dataset, with Northwatch Waypoint added for Battle in Tarir (Octovine). It is not automatically updated with GW2 patches. Scheduling uses UTC arithmetic, so changing the displayed timezone does not change event cadence.
 
@@ -137,7 +137,7 @@ The smoke test uses a separate prefix under `build/wine-smoke`; it does not star
 
 Built on Fedora 44 using Zig 0.17.0. Tests cover all 88 events, merging duplicate definitions, UTC midnight and daily rollover, irregular boss schedules, DST independence, and reminder deduplication. The actual DLL passed three load/render/keybind/unload cycles with Wine 11 from Proton Experimental and a simulated Nexus API.
 
-**The addon has not yet been validated inside GW2 with the real Nexus renderer.** In-game layout, clipboard, audio, browser launching, and real texture loading still need an actual game-session check.
+The user has confirmed that the addon works in GW2 with Nexus. Automated integration tests use a simulated Nexus API; they do not independently verify every desktop integration or game configuration.
 
 The interface is in English and uses Nexus/ImGui styling. Blish HUD's localized interface, animations, and specific chime are not ported; the sound uses Wine's system notification. Existing Blish HUD watchlists are not imported. Reloading the addon resets in-memory reminder deduplication. This is an unofficial local port; it is not listed in the Nexus library and does not self-update.
 

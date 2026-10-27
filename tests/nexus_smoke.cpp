@@ -76,11 +76,12 @@ int main() {
         assert(definition && definition->APIVersion == 6 && definition->Signature == 0x45564F42);
         definition->Load(&api);
         assert(callbacks.size() == 2 && bind && shortcut && escape_visible);
+        assert(!*escape_visible); // Loading the addon must not open its window.
         frame(); frame();
         bool original_visible = *escape_visible;
         bind("test", true); frame(); assert(*escape_visible == original_visible);
         bind("test", false); frame(); assert(*escape_visible != original_visible);
-        bind("test", false); frame(); assert(*escape_visible == original_visible);
+        // Leave it open before unload: reloading must still start hidden.
         definition->Unload();
         assert(callbacks.empty() && !bind && !shortcut && !escape_visible);
         assert(FreeLibrary(library));

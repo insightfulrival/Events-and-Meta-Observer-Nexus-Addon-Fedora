@@ -1,0 +1,7 @@
+/build/
+/dist/
+/.tools/
+/docs/evidence/
+/docs/ANALIZA.md
+__pycache__/
+*.pyc

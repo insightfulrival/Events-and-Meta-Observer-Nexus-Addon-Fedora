@@ -18,7 +18,7 @@ info = {
     'validation': 'Native C++ schedule tests; 12 Python generator/installer tests; PE verification; Wine 11 actual DLL load/render/unload with simulated Nexus API. User confirmed the addon works in GW2; automated integration uses a simulated Nexus API.',
 }
 (dist / 'BUILD-INFO.json').write_text(json.dumps(info, indent=2) + '\n')
-archive = dist / 'events-observer-nexus-fedora-0.1.2.zip'
+archive = dist / 'events-observer-nexus-fedora-0.1.3.zip'
 with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as out:
     for name in files + ['dist/events-observer.dll', 'dist/BUILD-INFO.json']:
         if name:

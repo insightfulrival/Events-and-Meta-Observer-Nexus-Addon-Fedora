@@ -82,7 +82,7 @@ Keep any other launch arguments and DLL overrides your setup requires. Never ren
 
 Reminders normally appear 5 or 10 minutes before an event; each event's lead time comes from the bundled schedule. Left-click notification text to copy its waypoint and dismiss it; right-click to dismiss. `Dismiss` closes one notification; `Dismiss all`, immediately to its right, clears all currently displayed notifications without changing the watchlist or future reminders. Settings and the watchlist are saved in `addons/events-observer/settings.txt`.
 
-These are static scheduled start times, not live server-state detection. The bundled schedule is based on the original 1.0.9 dataset, with Northwatch Waypoint added for Battle in Tarir (Octovine). It is not automatically updated with GW2 patches. Scheduling uses UTC arithmetic, so changing the displayed timezone does not change event cadence.
+These are static scheduled start times, not live server-state detection. The bundled schedule is based on the original 1.0.9 dataset, with Northwatch Waypoint added for Battle in Tarir (Octovine) and Defending Tarir, and Dry Top Entry Waypoint added for Crash Site and Sandstorm. It is not automatically updated with GW2 patches. Scheduling uses UTC arithmetic, so changing the displayed timezone does not change event cadence.
 
 ## Updating and uninstalling
 

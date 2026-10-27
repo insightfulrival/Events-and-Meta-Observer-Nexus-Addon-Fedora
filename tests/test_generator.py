@@ -44,6 +44,11 @@ class GeneratorTests(unittest.TestCase):
             with self.subTest(fields=fields), self.assertRaises(ValueError):
                 generator.compile_events([self.row(**fields)])
 
+    def test_tarir_waypoint_survives_generation(self):
+        rows = json.loads((ROOT / "assets/events.json").read_text())
+        event = next(e for e in generator.compile_events(rows) if e["name"] == "Battle in Tarir")
+        self.assertEqual(event["waypoint"], "[&BN0HAAA=]")
+
     def test_original_catalog(self):
         source = ROOT / "assets/events.json"
         if not source.exists():

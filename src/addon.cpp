@@ -385,7 +385,7 @@ extern "C" __declspec(dllexport) AddonDefinition_t* GetAddonDef() {
     // Local signature, not registered in the public Nexus library.
     static AddonDefinition_t definition = {
         0x45564F42, NEXUS_API_VERSION, "Events and Metas Observer (Fedora port)",
-        {0, 1, 0, 0}, "Community / local Nexus port",
+        {0, 1, 1, 0}, "Community / local Nexus port",
         "Event reminders, watchlist and waypoints. Original Blish HUD schedule 1.0.9.",
         load, unload, AF_None, UP_None, nullptr
     };

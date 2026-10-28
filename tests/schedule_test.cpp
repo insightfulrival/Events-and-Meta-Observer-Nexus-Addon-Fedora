@@ -24,6 +24,13 @@ int main() {
         }
     }
 
+    for (const auto& event : catalog)
+        for (int start : event.starts) {
+            assert(previous_start(event, start) == start);
+            assert(previous_start(event, start + 1) == start);
+            assert(previous_start(event, start - 1) < start);
+        }
+
     const auto& reset = find("Server Reset");
     assert(reset.starts == std::vector<int>{0});
     assert(next_start(reset, 0) == 0); // Original zero/default ambiguity fixed.
@@ -75,9 +82,32 @@ int main() {
     reminder.alert_minutes = 0;
     assert(!should_alert(reminder, 3500, true, true, last));
 
+    Event running;
+    running.starts = {3600, 7200}; running.duration_minutes = 15;
+    assert(previous_start(running, 3599) == 7200 - 86400); // Previous UTC day.
+    assert(!in_progress(running, 3599));
+    assert(in_progress(running, 3600)); // Inclusive at the starting second.
+    assert(in_progress(running, 3600 + 899));
+    assert(!in_progress(running, 3600 + 900)); // Ends after its duration.
+    assert(in_progress(running, 86400 + 7200 + 60));
+    running.duration_minutes = -1;
+    assert(!in_progress(running, 3600)); // Unknown duration.
+    assert(!in_progress(reset, 0)); // Zero duration.
+
+    // Each day-night phase ends exactly when the next one begins, in Tyria and Cantha.
+    for (const char* suffix : {"", " - Cantha"}) {
+        const char* phases[] = {"Dawn", "Day", "Dusk", "Night"};
+        for (int i = 0; i < 4; ++i) {
+            const auto& phase = find(std::string(phases[i]) + suffix);
+            const auto& following = find(std::string(phases[(i + 1) % 4]) + suffix);
+            const std::int64_t end = phase.starts.front() + phase.duration_minutes * 60;
+            assert(next_start(following, end) == end);
+        }
+    }
+
     // A Berlin DST transition never moves UTC game schedules or repeat intervals.
     // 2026-10-25 00:00 UTC and +24h: reset remains exactly one UTC day apart.
     constexpr std::int64_t dst_day = 1792886400;
     assert(next_start(reset, dst_day + 1) - next_start(reset, dst_day) == 86400);
-    std::cout << "Schedule tests passed: 88 events, UTC rollover, DST independence, and alert deduplication.\n";
+    std::cout << "Schedule tests passed: 88 events, UTC rollover, DST independence, running events, and alert deduplication.\n";
 }

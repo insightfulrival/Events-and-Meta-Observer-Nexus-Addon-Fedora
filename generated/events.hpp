@@ -8,7 +8,7 @@ inline std::vector<Event> bundled_events() {
         {"Dawn", "", "Day-Night Cycle", "", "", "", "https://wiki.guildwars2.com/wiki/Day_and_night", "", 5, 5, {1500, 8700, 15900, 23100, 30300, 37500, 44700, 51900, 59100, 66300, 73500, 80700}},
         {"Day", "", "Day-Night Cycle", "", "", "", "https://wiki.guildwars2.com/wiki/Day_and_night", "", 70, 5, {1800, 9000, 16200, 23400, 30600, 37800, 45000, 52200, 59400, 66600, 73800, 81000}},
         {"Dusk", "", "Day-Night Cycle", "", "", "", "https://wiki.guildwars2.com/wiki/Day_and_night", "", 5, 5, {6000, 13200, 20400, 27600, 34800, 42000, 49200, 56400, 63600, 70800, 78000, 85200}},
-        {"Night", "", "Day-Night Cycle", "", "", "", "https://wiki.guildwars2.com/wiki/Day_and_night", "", 50, 5, {6300, 13500, 20700, 27900, 35100, 42300, 49500, 56700, 63900, 71100, 78300, 85500}},
+        {"Night", "", "Day-Night Cycle", "", "", "", "https://wiki.guildwars2.com/wiki/Day_and_night", "", 40, 5, {6300, 13500, 20700, 27900, 35100, 42300, 49500, 56700, 63900, 71100, 78300, 85500}},
         {"Dawn - Cantha", "", "Day-Night Cycle", "", "", "", "https://wiki.guildwars2.com/wiki/Day_and_night", "", 5, 5, {2100, 9300, 16500, 23700, 30900, 38100, 45300, 52500, 59700, 66900, 74100, 81300}},
         {"Day - Cantha", "", "Day-Night Cycle", "", "", "", "https://wiki.guildwars2.com/wiki/Day_and_night", "", 55, 5, {2400, 9600, 16800, 24000, 31200, 38400, 45600, 52800, 60000, 67200, 74400, 81600}},
         {"Dusk - Cantha", "", "Day-Night Cycle", "", "", "", "https://wiki.guildwars2.com/wiki/Day_and_night", "", 5, 5, {5700, 12900, 20100, 27300, 34500, 41700, 48900, 56100, 63300, 70500, 77700, 84900}},

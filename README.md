@@ -101,6 +101,7 @@ Keep any other launch arguments and DLL overrides your setup requires. Never ren
 | --- | --- |
 | Event checkbox | Enable or disable reminders for that event |
 | Search / Category / Watched only | Combine filters by name, alternative name, map, category, or watchlist |
+| In progress | Show only events running now, with the time left (sorted by which ends first); events without a known duration are hidden |
 | Sort by next start | Toggle between upcoming time and alphabetical order |
 | Waypoint | Copy the chat code; paste it into GW2 chat |
 | Wiki | Open the event page through Wine's browser integration |
@@ -110,9 +111,9 @@ Keep any other launch arguments and DLL overrides your setup requires. Never ren
 | Move notifications | Drag the notification title bar, then save its position |
 | Test notification | Preview a ten-second notification and sound |
 
-Reminders normally appear 5 or 10 minutes before an event; each event's lead time comes from the bundled schedule. Left-click notification text to copy its waypoint and dismiss it; right-click to dismiss. `Dismiss` closes one notification; `Dismiss all`, immediately to its right, clears all currently displayed notifications without changing the watchlist or future reminders. Settings and the watchlist are saved in `addons/events-observer/settings.txt`.
+Reminders normally appear 5 or 10 minutes before an event; each event's lead time comes from the bundled schedule. Left-click notification text to copy its waypoint and dismiss it; right-click to dismiss. `Dismiss` closes one notification and `Copy WP` copies its waypoint without closing it; `Dismiss all`, below the last notification, clears all currently displayed notifications without changing the watchlist or future reminders. Settings and the watchlist are saved in `addons/events-observer/settings.txt`.
 
-These are static scheduled start times, not live server-state detection. The bundled schedule is based on the original 1.0.9 dataset, with Northwatch Waypoint added for Battle in Tarir (Octovine) and Defending Tarir, and Dry Top Entry Waypoint added for Crash Site and Sandstorm. It is not automatically updated with GW2 patches. Scheduling uses UTC arithmetic, so changing the displayed timezone does not change event cadence.
+These are static scheduled start times, not live server-state detection. The bundled schedule is based on the original 1.0.9 dataset, with Northwatch Waypoint added for Battle in Tarir (Octovine) and Defending Tarir, Dry Top Entry Waypoint added for Crash Site and Sandstorm, and the Tyria Night duration corrected from 50 to 40 minutes so it ends when Dawn begins. It is not automatically updated with GW2 patches. Scheduling uses UTC arithmetic, so changing the displayed timezone does not change event cadence.
 
 ## Updating and uninstalling
 
@@ -165,7 +166,7 @@ The smoke test uses a separate prefix under `build/wine-smoke`; it does not star
 
 ## Validation and limitations
 
-Built on Fedora 44 using Zig 0.17.0. Tests cover all 88 events, merging duplicate definitions, UTC midnight and daily rollover, irregular boss schedules, DST independence, and reminder deduplication. The actual DLL passed three load/render/keybind/unload cycles with Wine 11 from Proton Experimental and a simulated Nexus API.
+Built on Fedora 44 using Zig 0.17.0. Tests cover all 88 events, merging duplicate definitions, UTC midnight and daily rollover, irregular boss schedules, DST independence, running-event windows, day-night phase continuity, and reminder deduplication. The actual DLL passed three load/render/keybind/unload cycles with Wine 11 from Proton Experimental and a simulated Nexus API.
 
 The user has confirmed that the addon works in GW2 with Nexus. Automated integration tests use a simulated Nexus API; they do not independently verify every desktop integration or game configuration.
 

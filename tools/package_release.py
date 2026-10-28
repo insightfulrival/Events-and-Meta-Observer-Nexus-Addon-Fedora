@@ -15,10 +15,10 @@ info = {
     'artifact': dll.name, 'sha256': hashlib.sha256(dll.read_bytes()).hexdigest(),
     'source_revision': revision, 'target': 'x86_64-windows-gnu',
     'nexus_api': 6, 'compiler': 'Zig 0.17.0', 'schedule_rows': 104, 'unique_events': 88,
-    'validation': 'Native C++ schedule tests; 12 Python generator/installer tests; PE verification; Wine 11 actual DLL load/render/unload with simulated Nexus API, 39 preloaded icons, zero network icon requests, and Back to top button click. User confirmed the addon works in GW2; automated integration uses a simulated Nexus API.',
+    'validation': 'Native C++ schedule tests; 12 Python generator/installer tests; PE verification; Wine 11 actual DLL load/render/unload with simulated Nexus API, 39 preloaded icons, zero network icon requests, and Back to top button click. In progress filter and notification buttons are not exercised by the harness. User confirmed the addon works in GW2; automated integration uses a simulated Nexus API.',
 }
 (dist / 'BUILD-INFO.json').write_text(json.dumps(info, indent=2) + '\n')
-archive = dist / 'events-observer-nexus-fedora-0.1.4.zip'
+archive = dist / 'events-observer-nexus-fedora-0.1.5.zip'
 with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as out:
     for name in files + ['dist/events-observer.dll', 'dist/BUILD-INFO.json']:
         if name:

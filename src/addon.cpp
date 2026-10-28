@@ -43,6 +43,7 @@ bool move_notifications = false;
 bool use_utc = false;
 bool next_up = true;
 bool watched_only = false;
+bool in_progress_only = false;
 bool scroll_to_top_requested = false;
 float notification_x = 180, notification_y = 60;
 char search[160] = {};
@@ -125,6 +126,9 @@ std::string countdown(std::int64_t seconds) {
     auto minutes = (std::max<std::int64_t>(seconds, 0) + 59) / 60;
     if (minutes >= 60) return std::to_string(minutes / 60) + "h " + std::to_string(minutes % 60) + "m";
     return std::to_string(minutes) + "m";
+}
+std::int64_t running_end(const events::Event& e, std::int64_t now) {
+    return events::previous_start(e, now) + std::int64_t(e.duration_minutes) * 60;
 }
 void copy_waypoint(const std::string& waypoint) {
     if (waypoint.empty()) return;
@@ -212,13 +216,12 @@ void draw_notices(std::int64_t now) {
             if (ImGui::IsItemClicked(0)) { copy_waypoint(e.waypoint); dismiss = true; }
             if (!e.waypoint.empty() && ImGui::IsItemHovered()) ImGui::SetTooltip("Left click: copy waypoint\nRight click: dismiss");
             if (ImGui::SmallButton("Dismiss")) dismiss = true;
-            ImGui::SameLine();
-            bool dismiss_all = ImGui::SmallButton("Dismiss all");
+            if (!e.waypoint.empty()) { ImGui::SameLine(); if (ImGui::SmallButton("Copy WP")) copy_waypoint(e.waypoint); }
             ImGui::Separator();
             ImGui::PopID();
-            if (dismiss_all) { notices.clear(); break; }
             if (dismiss) notices.erase(notices.begin() + static_cast<std::ptrdiff_t>(i)); else ++i;
         }
+        if (!notices.empty() && ImGui::SmallButton("Dismiss all")) notices.clear();
     }
     ImGui::End();
     if (!open) { move_notifications = false; save_settings(); }
@@ -253,6 +256,9 @@ void draw_window(std::int64_t now) {
         ImGui::SameLine();
         ImGui::Checkbox("Watched only", &watched_only);
         ImGui::SameLine();
+        ImGui::Checkbox("In progress", &in_progress_only);
+        if (ImGui::IsItemHovered()) ImGui::SetTooltip("Show only events running now");
+        ImGui::SameLine();
         ImGui::Checkbox("Sort by next start", &next_up);
         ImGui::SetNextItemWidth(220);
         if (ImGui::BeginCombo("Category", category.empty() ? "All events" : category.c_str())) {
@@ -275,11 +281,15 @@ void draw_window(std::int64_t now) {
         for (std::size_t i = 0; i < all_events.size(); ++i) {
             const auto& e = all_events[i];
             if ((!category.empty() && category != e.category) || (watched_only && !watched[i])) continue;
+            if (in_progress_only && !events::in_progress(e, now)) continue;
             if (!query.empty() && lower(e.name + " " + e.colloquial + " " + e.location).find(query) == std::string::npos) continue;
             order.push_back(i);
         }
         std::sort(order.begin(), order.end(), [now](std::size_t a, std::size_t b) {
-            if (next_up) {
+            if (next_up && in_progress_only) {
+                auto ta = running_end(all_events[a], now), tb = running_end(all_events[b], now);
+                if (ta != tb) return ta < tb;
+            } else if (next_up) {
                 auto ta = events::next_start(all_events[a], now), tb = events::next_start(all_events[b], now);
                 if (ta != tb) return ta < tb;
             }
@@ -300,7 +310,10 @@ void draw_window(std::int64_t now) {
                 ImGui::BeginGroup();
                 ImGui::TextUnformatted(e.name.c_str());
                 auto next = events::next_start(e, now);
-                ImGui::TextDisabled("%s  |  in %s  |  %s", time_label(next).c_str(), countdown(next - now).c_str(), e.location.c_str());
+                if (events::in_progress(e, now))
+                    ImGui::TextDisabled("In progress  |  ends in %s  |  %s", countdown(running_end(e, now) - now).c_str(), e.location.c_str());
+                else
+                    ImGui::TextDisabled("%s  |  in %s  |  %s", time_label(next).c_str(), countdown(next - now).c_str(), e.location.c_str());
                 if (ImGui::IsItemHovered()) {
                     ImGui::BeginTooltip();
                     ImGui::Text("Category: %s", e.category.c_str());
@@ -404,7 +417,7 @@ extern "C" __declspec(dllexport) AddonDefinition_t* GetAddonDef() {
     // Local signature, not registered in the public Nexus library.
     static AddonDefinition_t definition = {
         0x45564F42, NEXUS_API_VERSION, "Events and Metas Observer (Fedora port)",
-        {0, 1, 4, 0}, "Community / local Nexus port",
+        {0, 1, 5, 0}, "Community / local Nexus port",
         "Event reminders, watchlist and waypoints. Original Blish HUD schedule 1.0.9.",
         load, unload, AF_None, UP_None, nullptr
     };

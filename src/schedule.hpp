@@ -37,6 +37,25 @@ inline std::int64_t next_start(const Event& event, std::int64_t now) {
         : day * seconds_per_day + *next;
 }
 
+// Latest start at or before now; the counterpart of next_start.
+inline std::int64_t previous_start(const Event& event, std::int64_t now) {
+    if (event.starts.empty()) throw std::invalid_argument("Event has no start times");
+    auto day = now / seconds_per_day;
+    auto second = now % seconds_per_day;
+    if (second < 0) { --day; second += seconds_per_day; }
+    const auto after = std::upper_bound(event.starts.begin(), event.starts.end(), second);
+    return after == event.starts.begin()
+        ? (day - 1) * seconds_per_day + event.starts.back()
+        : day * seconds_per_day + *(after - 1);
+}
+
+// Running from the starting second until its duration elapses.
+// Events with an unknown (-1) or zero duration never count as running.
+inline bool in_progress(const Event& event, std::int64_t now) {
+    return event.duration_minutes > 0
+        && now < previous_start(event, now) + std::int64_t(event.duration_minutes) * 60;
+}
+
 // The marker belongs to one event and survives watch/notification toggles.
 // Pausing notifications never consumes a reminder, and resuming cannot repeat
 // an already delivered reminder for the same occurrence. No catch-up after start.

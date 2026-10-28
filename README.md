@@ -2,6 +2,8 @@
 
 Event reminders and a watchlist for **Guild Wars 2 + Nexus on Linux through Wine/Proton**, ported from Blish HUD's Events and Metas Observer 1.0.9.
 
+Event icons are bundled inside the DLL and preloaded at startup, so opening the list does not wait for ArenaNet downloads. Events sharing the same artwork reuse one Nexus texture.
+
 Tracks **88 events** from the original 104 schedule definitions: world bosses, meta events, convergences, group events, adventures, day/night cycles, and server reset. Includes category/search filters, upcoming start times, per-event reminders, waypoint copying, wiki links, and movable notifications. No GW2 API key is needed.
 
 Nexus runs inside the Windows game process, so the addon is a **Windows x64 DLL built on Linux**. Blish HUD and .NET are not required. Nexus must already be installed and working in your GW2 prefix.
@@ -103,6 +105,7 @@ Keep any other launch arguments and DLL overrides your setup requires. Never ren
 | Waypoint | Copy the chat code; paste it into GW2 chat |
 | Wiki | Open the event page through Wine's browser integration |
 | Enable notifications / Sound | Control popups and the Wine system notification sound |
+| Back to top | Return to the beginning of the event list; the button stays below the scrolling list |
 | UTC times | Switch display between local time and UTC |
 | Move notifications | Drag the notification title bar, then save its position |
 | Test notification | Preview a ten-second notification and sound |
@@ -134,7 +137,7 @@ ZIG=/absolute/path/to/zig ./setup-linux.sh --build-only
 python3 install.py
 ```
 
-`./build.sh` generates the embedded schedule, runs native C++ and Python tests, compiles `dist/events-observer.dll`, and checks its architecture, Nexus export, and dependencies. Edit `assets/events.json` and rebuild to customize event times or reminder lead times.
+`./build.sh` embeds the bundled schedule and PNG icons, runs native C++ and Python tests, compiles `dist/events-observer.dll`, and checks its architecture, Nexus export, and dependencies. Edit `assets/events.json` and rebuild to customize event times or reminder lead times.
 
 Optional integration smoke test, using a Wine executable already installed on your machine:
 
@@ -148,7 +151,7 @@ For Steam Proton Experimental, a typical path is:
 WINE="$HOME/.local/share/Steam/steamapps/common/Proton - Experimental/files/bin/wine" ./smoke-test.sh
 ```
 
-The smoke test uses a separate prefix under `build/wine-smoke`; it does not start GW2 or edit the game prefix. It loads the actual DLL against a simulated Nexus API and tests ImGui rendering, options, the keybind, and three load/unload cycles.
+The smoke test uses a separate prefix under `build/wine-smoke`; it does not start GW2 or edit the game prefix. It loads the actual DLL against a simulated Nexus API and tests ImGui rendering, options, the keybind, zero network icon requests, preloading each unique icon once, the Back to top button click, and three load/unload cycles. Test assertions remain enabled in optimized builds.
 
 ## Troubleshooting
 
@@ -158,7 +161,7 @@ The smoke test uses a separate prefix under `build/wine-smoke`; it does not star
 - **Addon missing or disabled:** check `addons/Nexus/Nexus.log`; confirm the addon is enabled and your Nexus supports API v6.
 - **No reminders:** enable notifications, watch the event, and check its reminder lead time. Closing the addon window does not stop reminders.
 - **No sound/browser/clipboard:** Wine desktop integration depends on your prefix and environment. Test these in your actual game session.
-- **Missing icons:** icons download through Nexus from ArenaNet's render service. Timers and text still work offline.
+- **Missing icons:** all 39 unique event images are embedded in the DLL and queued once when the addon loads, so no icon download is needed at runtime. Wait for Nexus to upload the textures or reload the addon if they remain missing. Events without a specific image use the addon icon.
 
 ## Validation and limitations
 

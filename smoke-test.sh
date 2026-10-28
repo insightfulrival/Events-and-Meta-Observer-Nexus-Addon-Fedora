@@ -9,7 +9,7 @@ if [[ -z "$zig_bin" ]]; then
 fi
 wine_bin=${WINE:-wine}
 mkdir -p build/smoke
-"$zig_bin" c++ -target x86_64-windows-gnu -std=c++17 -O1 -Wno-nontrivial-memcall \
+"$zig_bin" c++ -target x86_64-windows-gnu -std=c++17 -O1 -UNDEBUG -Wno-nontrivial-memcall \
   -Ivendor -Ivendor/imgui tests/nexus_smoke.cpp vendor/imgui/imgui.cpp \
   vendor/imgui/imgui_draw.cpp vendor/imgui/imgui_widgets.cpp vendor/imgui/imgui_tables.cpp \
   -luser32 -limm32 -o build/smoke/nexus-smoke.exe

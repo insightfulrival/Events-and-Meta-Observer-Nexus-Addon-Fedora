@@ -5,6 +5,7 @@
 #include "schedule.hpp"
 #include "events.hpp"
 #include "icon.hpp"
+#include "icons.hpp"
 #include <shellapi.h>
 #include <algorithm>
 #include <atomic>
@@ -42,6 +43,7 @@ bool move_notifications = false;
 bool use_utc = false;
 bool next_up = true;
 bool watched_only = false;
+bool scroll_to_top_requested = false;
 float notification_x = 180, notification_y = 60;
 char search[160] = {};
 std::string category;
@@ -152,10 +154,8 @@ void open_wiki(const std::string& url) {
         feedback("Could not open the wiki. Check Wine browser integration.");
 }
 Texture_t* event_texture(std::size_t index) {
-    const auto& e = all_events[index];
-    if (e.icon.empty() || !api->Textures_GetOrCreateFromURL) return nullptr;
-    std::string endpoint = "/file/" + e.icon + ".png";
-    return api->Textures_GetOrCreateFromURL(texture_ids[index].c_str(), "https://render.guildwars2.com", endpoint.c_str());
+    if (!api->Textures_Get) return nullptr;
+    return api->Textures_Get(texture_ids[index].c_str());
 }
 void draw_event_icon(std::size_t index, float size) {
     auto* texture = event_texture(index);
@@ -285,7 +285,11 @@ void draw_window(std::int64_t now) {
             }
             return all_events[a].name < all_events[b].name;
         });
-        if (ImGui::BeginChild("Event list", ImVec2(0, 0), true)) {
+        if (ImGui::BeginChild("Event list", ImVec2(0, -ImGui::GetFrameHeightWithSpacing()), true)) {
+            if (scroll_to_top_requested) {
+                ImGui::SetScrollY(0.0f);
+                scroll_to_top_requested = false;
+            }
             for (auto index : order) {
                 const auto& e = all_events[index];
                 ImGui::PushID(static_cast<int>(index));
@@ -320,6 +324,7 @@ void draw_window(std::int64_t now) {
             if (order.empty()) ImGui::TextUnformatted("No events match the current filters.");
         }
         ImGui::EndChild();
+        if (ImGui::Button("Back to top")) scroll_to_top_requested = true;
     }
     ImGui::End();
 }
@@ -342,6 +347,7 @@ void on_bind(const char*, bool released) {
 void load(AddonAPI_t* provided) {
     api = provided;
     visible = false;
+    scroll_to_top_requested = false;
     try {
         ImGui::SetCurrentContext(static_cast<ImGuiContext*>(api->ImguiContext));
         ImGui::SetAllocatorFunctions(reinterpret_cast<void*(*)(size_t, void*)>(api->ImguiMalloc),
@@ -350,7 +356,12 @@ void load(AddonAPI_t* provided) {
         watched.assign(all_events.size(), 1);
         last_alerted.assign(all_events.size(), events::never_alerted);
         texture_ids.clear();
-        for (std::size_t i = 0; i < all_events.size(); ++i) texture_ids.push_back("EVOBS_EVENT_" + std::to_string(i));
+        for (const auto& event : all_events) {
+            const char* identifier = texture_id;
+            for (const auto& icon : bundled_icons::images)
+                if (event.icon == icon.key) { identifier = icon.identifier; break; }
+            texture_ids.emplace_back(identifier);
+        }
         const char* folder = api->Paths_GetAddonDirectory("events-observer");
         if (!folder || !*folder) throw std::runtime_error("Nexus did not provide an addon directory");
         std::filesystem::create_directories(folder);
@@ -359,6 +370,10 @@ void load(AddonAPI_t* provided) {
         last_check = events::never_alerted;
         if (api->Textures_GetOrCreateFromMemory)
             api->Textures_GetOrCreateFromMemory(texture_id, observer_icon, sizeof observer_icon);
+        // Queue each distinct local PNG once, before the user opens the window.
+        if (api->Textures_GetOrCreateFromMemory)
+            for (auto& icon : bundled_icons::images)
+                api->Textures_GetOrCreateFromMemory(icon.identifier, icon.data, icon.size);
         api->InputBinds_RegisterWithString(bind_id, on_bind, "CTRL+ALT+E");
         api->QuickAccess_Add(shortcut_id, texture_id, texture_id, bind_id, "Events and Metas Observer");
         api->GUI_RegisterCloseOnEscape(window_name, &visible);
@@ -389,7 +404,7 @@ extern "C" __declspec(dllexport) AddonDefinition_t* GetAddonDef() {
     // Local signature, not registered in the public Nexus library.
     static AddonDefinition_t definition = {
         0x45564F42, NEXUS_API_VERSION, "Events and Metas Observer (Fedora port)",
-        {0, 1, 3, 0}, "Community / local Nexus port",
+        {0, 1, 4, 0}, "Community / local Nexus port",
         "Event reminders, watchlist and waypoints. Original Blish HUD schedule 1.0.9.",
         load, unload, AF_None, UP_None, nullptr
     };
